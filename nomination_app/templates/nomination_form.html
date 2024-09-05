@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomination Form</title>
+    {% load crispy_forms_tags %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 800px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            animation: float 5s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+        .header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px 5px 0 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        h2 {
+            margin-top: 30px;
+            font-size: 20px;
+            color: #007bff;
+        }
+        .btn-submit {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .btn-submit:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .btn-add-nominee {
+            background-color: #28a745;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        .nominee-form {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            animation: fadeInUp 1.2s forwards;
+        }
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        label {
+            font-weight: bold;
+        }
+        .nominee-list {
+            margin-top: 20px;
+        }
+        .nominee-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .nominee-list ul li {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Nomination Form</h1>
+        </div>
+        <form method="post" id="nomination-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="subscriber-name">Subscriber Name:</label>
+                <input type="text" class="form-control" id="subscriber-name" name="subscriber_name" required>
+            </div>
+            <div class="form-group">
+                <label for="marital-status">Marital Status:</label>
+                <input type="text" class="form-control" id="marital-status" name="marital_status" required>
+            </div>
+            <div class="form-group">
+                <label for="account-number">Account Number:</label>
+                <input type="text" class="form-control" id="account-number" name="account_number" required>
+            </div>
+
+            <h2>Nominees</h2>
+            <div id="nominee-container">
+                <!-- Nominee forms will be dynamically added here -->
+            </div>
+            <button type="button" class="btn btn-add-nominee" id="add-nominee-btn">Add Nominee</button>
+
+            <div class="form-group">
+                <label for="place">Place:</label>
+                <input type="text" class="form-control" id="place" name="place" required>
+            </div>
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+
+            <div class="text-right">
+                <button type="submit" class="btn-submit">Submit</button>
+            </div>
+        </form>
+
+        <div class="nominee-list">
+            <h2>Nominees Added</h2>
+            <ul id="nominee-list">
+                <!-- Nominee details will be displayed here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nomineeContainer = document.getElementById('nominee-container');
+            const nomineeList = document.getElementById('nominee-list');
+            const addNomineeBtn = document.getElementById('add-nominee-btn');
+            let nomineeCount = 0;
+
+            addNomineeBtn.addEventListener('click', () => {
+                nomineeCount++;
+                const nomineeForm = document.createElement('div');
+                nomineeForm.classList.add('nominee-form');
+                nomineeForm.innerHTML = `
+                    <h3>Nominee ${nomineeCount}</h3>
+                    <div class="form-group">
+                        <label for="nominee-name-${nomineeCount}">Name:</label>
+                        <input type="text" class="form-control" id="nominee-name-${nomineeCount}" name="nominee_name_${nomineeCount}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nominee-address-${nomineeCount}">Permanent Address:</label>
+                        <textarea class="form-control" id="nominee-address-${nomineeCount}" name="nominee_address_${nomineeCount}" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="nominee-aadhar-${nomineeCount}">Aadhar Number:</label>
+                        <input type="text" class="form-control" id="nominee-aadhar-${nomineeCount}" name="nominee_aadhar_${nomineeCount}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nominee-relationship-${nomineeCount}">Relationship with Subscriber:</label>
+                        <input type="text" class="form-control" id="nominee-relationship-${nomineeCount}" name="nominee_relationship_${nomineeCount}" required>
+                    </div>
+                `;
+                nomineeContainer.appendChild(nomineeForm);
+
+                // Append nominee details to the list for preview
+                const listItem = document.createElement('li');
+                listItem.innerText = `Nominee ${nomineeCount}: `;
+                nomineeForm.querySelectorAll('input, textarea').forEach(input => {
+                    input.addEventListener('input', () => {
+                        listItem.innerText = `Nominee ${nomineeCount}: ${nomineeForm.querySelector(`#nominee-name-${nomineeCount}`).value}, Aadhar: ${nomineeForm.querySelector(`#nominee-aadhar-${nomineeCount}`).value}`;
+                    });
+                });
+                nomineeList.appendChild(listItem);
+            });
+        });
+    </script>
+</body>
+</html>
